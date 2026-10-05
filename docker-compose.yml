@@ -1,0 +1,27 @@
+services:
+  mcp:
+    build: .
+    command: python -m mcp_server
+    ports:
+      - "127.0.0.1:8765:8765"
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      DATA_ROOT: /app/storage
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: "8765"
+
+  app:
+    build: .
+    command: streamlit run app/ui/streamlit_app.py --server.address 0.0.0.0 --server.port 8501
+    ports:
+      - "127.0.0.1:8501:8501"
+    volumes:
+      - ./storage:/app/storage
+    environment:
+      DATA_ROOT: /app/storage
+      OLLAMA_BASE_URL: http://host.docker.internal:11434
+      MCP_URL: http://mcp:8765/mcp
+    depends_on:
+      - mcp

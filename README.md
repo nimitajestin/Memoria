@@ -30,7 +30,7 @@ Execution is accuracy-first. Architecture ADRs are unchanged.
 | 8 | 9b Experiment runners | Implemented |
 | 9 | 10 Reliability | Implemented |
 | 10 | 8 UI | Implemented |
-| 11 | 11 Docker | Not started |
+| 11 | 11 Docker | Implemented |
 | 12 | 12 Finalization | Not started |
 
 ## Phase 1
