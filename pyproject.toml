@@ -18,6 +18,7 @@ dependencies = [
     "mcp>=2,<3",
     "langgraph>=1.0",
     "langgraph-checkpoint-sqlite>=2",
+    "streamlit>=1.32",
 ]
 
 [project.optional-dependencies]
@@ -25,7 +26,7 @@ dev = ["pytest>=8.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "ingestion*", "evaluation*", "mcp_server*", "agent*"]
+include = ["core*", "ingestion*", "evaluation*", "mcp_server*", "agent*", "app*"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
