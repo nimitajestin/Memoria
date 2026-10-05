@@ -45,6 +45,30 @@ class MCPBackend:
             )
         return hits
 
+    def policy_records(self, project_id: str) -> list:
+        del project_id
+        return []
+
+    def create_memory(self, project_id: str, record: dict[str, Any]) -> dict[str, Any]:
+        return self.call_tool("memory.create", {"project_id": project_id, "record": record})
+
+    def update_memory(
+        self,
+        project_id: str,
+        record_id: str,
+        patch: dict[str, Any],
+        expected_revision: int,
+    ) -> dict[str, Any]:
+        return self.call_tool(
+            "memory.update",
+            {
+                "project_id": project_id,
+                "id": record_id,
+                "patch": patch,
+                "expected_revision": expected_revision,
+            },
+        )
+
     def call_tool(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
         if self.calls >= TOOL_CAP:
             raise StorageError("VALIDATION", "Tool call cap for this turn was reached.")

@@ -42,7 +42,7 @@ def build_graph(
     graph.add_node("route", route_node(llm))
     graph.add_node("retrieve", retrieve_node(backend))
     graph.add_node("answer", answer_node(llm))
-    graph.add_node("remember", remember_node(llm))
+    graph.add_node("remember", remember_node(llm, backend))
     graph.add_node("fail", _fail)
     graph.add_edge(START, "understand")
     graph.add_conditional_edges("understand", _ok("route"))

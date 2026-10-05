@@ -10,6 +10,8 @@ from core.errors import StorageError
 
 def retrieve_node(backend: KnowledgeBackend):
     def retrieve(state: AgentState) -> dict[str, Any]:
+        if hasattr(backend, "calls"):
+            backend.calls = 0
         route = state.get("route") or "none"
         query = state.get("query") or state["user_message"]
         project_id = state["project_id"]
