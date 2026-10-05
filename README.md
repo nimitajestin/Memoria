@@ -26,7 +26,7 @@ Execution is accuracy-first. Architecture ADRs are unchanged.
 | 4 | 2 MCP | Implemented |
 | 5 | 5 Agent (A, then B, then C) | Implemented |
 | 6 | 6 Remember | Implemented |
-| 7 | 7 Import | Not started |
+| 7 | 7 Import | Implemented |
 | 8 | 9b Experiment runners | Not started |
 | 9 | 10 Reliability | Not started |
 | 10 | 8 UI | Not started |

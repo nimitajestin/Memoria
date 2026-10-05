@@ -10,13 +10,14 @@ import yaml
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from core.memory.content import sha256_bytes
-from core.schemas.conversations import ConversationFile, Turn
+from core.schemas.conversations import ConversationFile
 from core.schemas.documents import DocumentMeta
 from core.schemas.memory import Source
 from core.storage.conversations import ConversationStore
 from core.storage.documents import DocumentRepository
 from core.storage.memory_repo import MemoryRepository
 from core.storage.vault import atomic_write
+from ingestion.importing.parse import parse_labeled_transcript
 
 CONTROLLED_ROOT = Path(__file__).resolve().parent
 HARBOR = "project_harbor"
@@ -98,38 +99,6 @@ def load_not_durable_candidate(root: Path = CONTROLLED_ROOT) -> dict:
     if not isinstance(payload, dict):
         raise ValueError("not_durable_candidate.yaml must be a mapping")
     return payload
-
-
-def parse_labeled_transcript(text: str) -> list[Turn]:
-    turns: list[Turn] = []
-    role: str | None = None
-    lines: list[str] = []
-
-    def flush() -> None:
-        nonlocal role, lines
-        if role is None:
-            return
-        content = "\n".join(lines).strip()
-        if content:
-            turns.append(Turn(role=role, content=content, timestamp=None))
-        role = None
-        lines = []
-
-    for line in text.splitlines():
-        if line.startswith("User:"):
-            flush()
-            role = "user"
-            lines = [line[len("User:") :].strip()]
-        elif line.startswith("Assistant:"):
-            flush()
-            role = "assistant"
-            lines = [line[len("Assistant:") :].strip()]
-        elif role is not None:
-            lines.append(line)
-    flush()
-    if not turns:
-        raise ValueError("transcript contained no User/Assistant turns")
-    return turns
 
 
 def _user_source() -> dict:

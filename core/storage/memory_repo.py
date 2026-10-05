@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from pathlib import Path
 
 import yaml
@@ -21,6 +22,7 @@ from core.safety import (
     resolve_inside,
     status_record_id,
 )
+from core.schemas.conversations import ConversationFile
 from core.schemas.memory import (
     DRAFT_ADAPTER,
     MUTABLE_FIELDS,
@@ -566,6 +568,63 @@ class MemoryRepository:
         missing = [item for item in ids if item not in known]
         if missing:
             raise StorageError("VALIDATION", "conflicts_with names a missing record.", {"ids": missing})
+
+    def import_conversation(self, project_id: str, path: Path, title: str | None = None) -> dict:
+        from core.memory.policy import evaluate
+        from core.safety import check_project_id
+        from ingestion.importing.candidates import extract_candidates
+        from ingestion.importing.parse import parse_transcript
+
+        project_id = check_project_id(project_id)
+        self._require_project(project_id)
+        origin, turns = parse_transcript(Path(path))
+        conversation_id = f"conv_{uuid.uuid4().hex[:12]}"
+        conversation = ConversationFile(
+            id=conversation_id,
+            project_id=project_id,
+            source="import",
+            origin_format=origin,
+            created_at=utc_now(),
+            title=(title or Path(path).stem)[:200],
+            turns=turns,
+        )
+        stored = self.conversations.save(conversation)
+        accepted = []
+        rejected = []
+        existing = []
+        for kind in ("fact", "decision", "goal", "knowledge", "episode", "conversation_summary", "status"):
+            existing.extend(self._snapshots(project_id, kind))
+        for candidate in extract_candidates(turns):
+            result = evaluate(candidate, existing)
+            if result.outcome == "reject":
+                rejected.append({"reason": result.reason, "statement": candidate.get("statement")})
+                continue
+            payload = {
+                "type": candidate["type"],
+                "topic": candidate.get("topic"),
+                "statement": candidate.get("statement"),
+                "source": {"kind": "import", "ref": None, "quote": None},
+                "created_by": "import",
+            }
+            record = self.create_record(project_id, payload)
+            accepted.append(record.model_dump(mode="json"))
+            digest, identity, topic = fingerprint(record.type, record.model_dump())
+            existing.append(
+                PolicyRecord(
+                    id=record.id,
+                    type=record.type,
+                    topic=topic,
+                    content_hash=digest,
+                    identity_hash=identity,
+                    revision=record.revision,
+                    status=record.status,
+                )
+            )
+        return {
+            "conversation": stored.model_dump(mode="json"),
+            "accepted": accepted,
+            "rejected": rejected,
+        }
 
     def _snapshots(self, project_id: str, record_type: str) -> list[PolicyRecord]:
         directory = self._project_dir(project_id)
