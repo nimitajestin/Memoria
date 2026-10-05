@@ -1,0 +1,405 @@
+questions:
+  - id: q01
+    category: direct_retrieval
+    session: single
+    question: How much RAM does the Harbor workstation have?
+    prior_turns: []
+    expects_route: documents
+    gold_memory_ids: []
+    gold_document_ids: [doc_aa0000000001]
+    gold_markers: [MARKER_HW_RAM]
+    gold_chunk_ids: []
+    required_points:
+      - 8 GB
+    forbidden_points:
+      - 16 GB
+    acceptable_grounding: [known_from_documents]
+
+  - id: q02
+    category: direct_retrieval
+    session: single
+    question: What retrieval method does Harbor use for document vectors?
+    prior_turns: []
+    expects_route: documents
+    gold_memory_ids: []
+    gold_document_ids: [doc_aa0000000002]
+    gold_markers: [MARKER_RETRIEVAL_SQLITE]
+    gold_chunk_ids: []
+    required_points:
+      - exact cosine
+      - SQLite
+    forbidden_points:
+      - Qdrant
+    acceptable_grounding: [known_from_documents]
+
+  - id: q03
+    category: direct_retrieval
+    session: single
+    question: When does Harbor skip re-embedding a document?
+    prior_turns: []
+    expects_route: documents
+    gold_memory_ids: []
+    gold_document_ids: [doc_aa0000000004]
+    gold_markers: [MARKER_INCREMENTAL_HASH]
+    gold_chunk_ids: []
+    required_points:
+      - hash
+      - skip
+    forbidden_points: []
+    acceptable_grounding: [known_from_documents]
+
+  - id: q04
+    category: cross_document
+    session: single
+    question: Which process owns port 8765 and which process connects to it?
+    prior_turns: []
+    expects_route: documents
+    gold_memory_ids: []
+    gold_document_ids: [doc_aa0000000007, doc_aa0000000008]
+    gold_markers: [MARKER_MCP_PORT, MARKER_MCP_CLIENT]
+    gold_chunk_ids: []
+    required_points:
+      - "8765"
+      - MCP
+      - agent
+    forbidden_points: []
+    acceptable_grounding: [known_from_documents, model_inference]
+
+  - id: q05
+    category: cross_document
+    session: single
+    question: What is the per-document chunk cap, and where is it encoded in code?
+    prior_turns: []
+    expects_route: documents
+    gold_memory_ids: []
+    gold_document_ids: [doc_aa0000000009, doc_aa000000000a]
+    gold_markers: [MARKER_CHUNK_CAP, MARKER_CHUNK_FN]
+    gold_chunk_ids: []
+    required_points:
+      - "500"
+    forbidden_points: []
+    acceptable_grounding: [known_from_documents, model_inference]
+
+  - id: q06
+    category: cross_document
+    session: single
+    question: How does the Harbor agent reach project knowledge?
+    prior_turns: []
+    expects_route: documents
+    gold_memory_ids: []
+    gold_document_ids: [doc_aa0000000007, doc_aa0000000008]
+    gold_markers: [MARKER_MCP_PORT, MARKER_MCP_CLIENT]
+    gold_chunk_ids: []
+    required_points:
+      - MCP
+      - client
+    forbidden_points:
+      - second knowledge store
+    acceptable_grounding: [known_from_documents, model_inference]
+
+  - id: q07
+    category: memory_recall
+    session: single
+    question: What architecture did I decide for the retrieval system?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - exact cosine
+      - SQLite
+    forbidden_points:
+      - Qdrant
+    acceptable_grounding: [known_from_memory]
+
+  - id: q08
+    category: memory_recall
+    session: single
+    question: What hardware constraint is stored as a Harbor fact?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [fact_8ba000000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - 8 GB
+    forbidden_points:
+      - 16 GB
+    acceptable_grounding: [known_from_memory]
+
+  - id: q09
+    category: memory_recall
+    session: single
+    question: What evaluation goal is recorded for Harbor?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [goal_aa0000000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - three
+      - systems
+    forbidden_points: []
+    acceptable_grounding: [known_from_memory]
+
+  - id: q10
+    category: temporal
+    session: single
+    question: Did Harbor decide to use Qdrant for retrieval?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001, decision_01d000000002]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - SQLite
+    forbidden_points:
+      - currently uses Qdrant
+    acceptable_grounding: [known_from_memory]
+
+  - id: q11
+    category: temporal
+    session: single
+    question: What replaced the earlier Qdrant retrieval proposal?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - exact cosine
+      - SQLite
+    forbidden_points: []
+    acceptable_grounding: [known_from_memory]
+
+  - id: q12
+    category: temporal
+    session: single
+    question: Is the old Qdrant draft still the active retrieval decision?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: [doc_aa0000000003]
+    gold_markers: [MARKER_QDRANT_OLD]
+    gold_chunk_ids: []
+    required_points:
+      - no
+      - SQLite
+    forbidden_points:
+      - active Qdrant
+    acceptable_grounding: [known_from_memory, known_from_documents]
+
+  - id: q13
+    category: conflict
+    session: single
+    question: What time is the Harbor standup?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [fact_c0f11c000001, fact_c0f11c000002]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - "10:00"
+      - "14:00"
+    forbidden_points: []
+    acceptable_grounding: [conflict, known_from_memory]
+
+  - id: q14
+    category: conflict
+    session: single
+    question: Do the stored Harbor standup facts agree?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [fact_c0f11c000001, fact_c0f11c000002]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - conflict
+    forbidden_points: []
+    acceptable_grounding: [conflict]
+
+  - id: q15
+    category: conflict
+    session: single
+    question: Which standup time should I treat as the only stored fact?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [fact_c0f11c000001, fact_c0f11c000002]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - both
+    forbidden_points:
+      - only 10:00
+      - only 14:00
+    acceptable_grounding: [conflict]
+
+  - id: q16
+    category: irrelevant_rejection
+    session: single
+    question: What architecture did I decide for the retrieval system and why?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - SQLite
+      - 8 GB
+    forbidden_points:
+      - blue
+      - logo
+    acceptable_grounding: [known_from_memory]
+
+  - id: q17
+    category: irrelevant_rejection
+    session: single
+    question: Does Harbor store retrieval vectors in Redis?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - SQLite
+    forbidden_points:
+      - Redis
+    acceptable_grounding: [known_from_memory]
+
+  - id: q18
+    category: irrelevant_rejection
+    session: single
+    question: What is the Harbor project cat named?
+    prior_turns: []
+    expects_route: none
+    gold_memory_ids: []
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - unknown
+    forbidden_points:
+      - named Harbor
+    acceptable_grounding: [unknown]
+
+  - id: q19
+    category: multi_turn
+    session: single
+    question: Given that constraint, why is exact cosine search acceptable?
+    prior_turns:
+      - role: user
+        content: Remind me of the Harbor RAM budget.
+      - role: assistant
+        content: The stored fact says the Harbor workstation has 8 GB of RAM and no discrete GPU.
+    expects_route: both
+    gold_memory_ids: [decision_a11ce0000001, fact_8ba000000001]
+    gold_document_ids: [doc_aa0000000002]
+    gold_markers: [MARKER_RETRIEVAL_SQLITE]
+    gold_chunk_ids: []
+    required_points:
+      - 8 GB
+      - SQLite
+    forbidden_points:
+      - Qdrant
+    acceptable_grounding: [known_from_memory, known_from_documents, model_inference]
+
+  - id: q20
+    category: multi_turn
+    session: single
+    question: Does that decision still allow a vector database service?
+    prior_turns:
+      - role: user
+        content: What retrieval store is active?
+      - role: assistant
+        content: The active decision is exact cosine search in SQLite.
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - no
+    forbidden_points:
+      - Qdrant is active
+    acceptable_grounding: [known_from_memory, model_inference]
+
+  - id: q21
+    category: multi_turn
+    session: single
+    question: You mentioned a standup time. Is there another stored time?
+    prior_turns:
+      - role: user
+        content: What standup time is in memory?
+      - role: assistant
+        content: One stored fact says 10:00 UTC.
+    expects_route: memory
+    gold_memory_ids: [fact_c0f11c000001, fact_c0f11c000002]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - "14:00"
+    forbidden_points: []
+    acceptable_grounding: [conflict, known_from_memory]
+
+  - id: q22
+    category: cross_session
+    session: cross
+    question: What architecture did I decide for the retrieval system and why?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: [decision_a11ce0000001]
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    required_points:
+      - exact cosine search in SQLite
+      - 8 GB RAM
+    forbidden_points:
+      - Qdrant
+    acceptable_grounding: [known_from_memory]
+
+  - id: q23
+    category: cross_session
+    session: cross
+    question: Given the hardware constraints, why did we choose that retrieval approach?
+    prior_turns: []
+    expects_route: both
+    gold_memory_ids: [decision_a11ce0000001, fact_8ba000000001]
+    gold_document_ids: [doc_aa0000000001, doc_aa0000000002]
+    gold_markers: [MARKER_HW_RAM, MARKER_RETRIEVAL_SQLITE]
+    gold_chunk_ids: []
+    required_points:
+      - 8 GB
+      - SQLite
+    forbidden_points:
+      - Qdrant
+    acceptable_grounding: [known_from_memory, known_from_documents, model_inference]
+
+  - id: q24
+    category: import_recall
+    session: cross
+    question: Where should Ollama run for Harbor?
+    prior_turns: []
+    expects_route: memory
+    gold_memory_ids: []
+    gold_document_ids: []
+    gold_markers: []
+    gold_chunk_ids: []
+    gold_conversation_ids: [conv_aa0000000001]
+    required_points:
+      - host
+    forbidden_points:
+      - pizza
+    acceptable_grounding: [known_from_memory, unknown]

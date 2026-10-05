@@ -1,0 +1,5 @@
+Harbor chunking limits
+
+MARKER_CHUNK_CAP: Harbor stores at most 500 chunks per document, then marks the document truncated.
+
+Chunk target length is 800 characters with a 1200 character maximum.

@@ -1,0 +1,8 @@
+type: fact
+confidence: 0.9
+stable: false
+project_specific: false
+future_useful: false
+source_kind: user
+topic: food
+statement: The user had pizza yesterday.

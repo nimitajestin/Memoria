@@ -1,0 +1,74 @@
+project_id: project_harbor
+decoy_project_id: project_decoy
+created_at: "2026-01-15T12:00:00Z"
+updated_at: "2026-03-01T12:00:00Z"
+
+documents:
+  - id: doc_aa0000000001
+    filename: hardware.md
+    file_type: markdown
+    markers:
+      hw_ram: "MARKER_HW_RAM"
+      hw_igpu: "MARKER_HW_IGPU"
+  - id: doc_aa0000000002
+    filename: retrieval.md
+    file_type: markdown
+    markers:
+      retrieval_sqlite: "MARKER_RETRIEVAL_SQLITE"
+  - id: doc_aa0000000003
+    filename: qdrant_note.md
+    file_type: markdown
+    markers:
+      qdrant_old: "MARKER_QDRANT_OLD"
+  - id: doc_aa0000000004
+    filename: indexing.md
+    file_type: markdown
+    markers:
+      incremental: "MARKER_INCREMENTAL_HASH"
+  - id: doc_aa0000000005
+    filename: meetings.md
+    file_type: markdown
+    markers:
+      standup_ten: "MARKER_STANDUP_TEN"
+  - id: doc_aa0000000006
+    filename: logo.md
+    file_type: markdown
+    markers:
+      blue_logo: "MARKER_BLUE_LOGO"
+  - id: doc_aa0000000007
+    filename: mcp_port_a.md
+    file_type: markdown
+    markers:
+      mcp_port: "MARKER_MCP_PORT"
+  - id: doc_aa0000000008
+    filename: mcp_port_b.md
+    file_type: markdown
+    markers:
+      mcp_client: "MARKER_MCP_CLIENT"
+  - id: doc_aa0000000009
+    filename: limits.txt
+    file_type: text
+    markers:
+      chunk_cap: "MARKER_CHUNK_CAP"
+  - id: doc_aa000000000a
+    filename: chunk_limit.py
+    file_type: python
+    markers:
+      chunk_fn: "MARKER_CHUNK_FN"
+
+conversations:
+  - id: conv_aa0000000001
+    filename: planning.md
+  - id: conv_aa0000000002
+    filename: aside.txt
+
+memory_ids:
+  decision_qdrant_old: decision_01d000000002
+  decision_sqlite: decision_a11ce0000001
+  fact_ram: fact_8ba000000001
+  fact_standup_ten: fact_c0f11c000001
+  fact_standup_two: fact_c0f11c000002
+  knowledge_logo: knowledge_aa0000000001
+  goal_eval: goal_aa0000000001
+  episode_freeze: episode_aa0000000001
+  decoy_redis: fact_deca00000001

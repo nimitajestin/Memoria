@@ -2,7 +2,7 @@
 
 Local-first agentic knowledge copilot with one custom MCP memory server, aimed at an 8 GB RAM, CPU-only machine.
 
-Phase 0 is the architecture freeze. Application code is not implemented yet.
+The research question is whether structured project memory, exposed through a single MCP server, improves a local RAG agent compared with stateless RAG, under a hard RAM budget and with no cloud APIs.
 
 ## Specification
 
@@ -12,11 +12,37 @@ Phase 0 is the architecture freeze. Application code is not implemented yet.
 - [MCP interface](docs/mcp-interface.md)
 - [Evaluation design](docs/evaluation-design.md)
 
-The research question is whether structured project memory, exposed through a single MCP server, improves a local RAG agent compared with stateless RAG, under a hard RAM budget and with no cloud APIs.
-
 ## Status
 
-| Phase | State |
-| --- | --- |
-| 0 Architecture | Frozen in `docs/` |
-| 1 Storage and later | Not started |
+Execution is accuracy-first. Architecture ADRs are unchanged.
+
+| Order | Phase | State |
+| --- | --- | --- |
+| — | 0 Architecture | Frozen in `docs/` |
+| — | 1 Storage | Implemented in `core/` |
+| 1 | 9a Harbor dataset | Implemented |
+| 2 | 3 Ingestion | Implemented |
+| 3 | 4 Retrieval | Implemented |
+| 4 | 2 MCP | Not started |
+| 5 | 5 Agent (A, then B, then C) | Not started |
+| 6 | 6 Remember | Not started |
+| 7 | 7 Import | Not started |
+| 8 | 9b Experiment runners | Not started |
+| 9 | 10 Reliability | Not started |
+| 10 | 8 UI | Not started |
+| 11 | 11 Docker | Not started |
+| 12 | 12 Finalization | Not started |
+
+## Phase 1
+
+The vault stores project memory as YAML. `status.md` and `decisions.md` are generated views. SQLite at `storage/index/memoria.sqlite` indexes those records and holds document metadata, chunk text, and embedding blobs. Writes are atomic, revision-checked, and refused when a path leaves the data root.
+
+```powershell
+python -m pip install -r requirements.txt
+python -m pytest
+```
+
+Phase 4 retrieval is exact cosine over SQLite float32 vectors. Default tests use a hash embedder; Ollama is optional (`pytest -m ollama`).
+
+
+

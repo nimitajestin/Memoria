@@ -112,19 +112,24 @@ Without it, System B and the Memory view would import the MCP server package or 
 
 ## Package roles by phase
 
+Phase numbers are capability labels from the original brief. **Execution order** is accuracy-first (architecture ADRs unchanged):
+
+9a Harbor dataset → 3 Ingestion → 4 Retrieval → 2 MCP → 5 Agent (A, then B, then C) → 6 Remember → 7 Import → 9b Experiment runners → 10 Reliability → 8 UI → 11 Docker → 12 Docs
+
 | Phase | Directories it fills |
 | --- | --- |
 | 1 Storage | `core/schemas`, `core/storage`, `core/safety`, `core/memory/policy`, `tests/unit` |
-| 2 MCP | `mcp_server`, `tests/mcp` |
+| 9a Dataset | `evaluation/datasets/controlled`, loader tests |
 | 3 Ingestion | `ingestion`, parser tests |
 | 4 Retrieval | `core/ollama.py`, `core/retrieval`, `tests/retrieval` |
+| 2 MCP | `mcp_server`, `tests/mcp` |
 | 5 Agent | `agent`, `tests/agent` |
 | 6 Memory intelligence | policy already stubbed in phase 1; phase 6 wires `remember` |
 | 7 Import | `core/storage` conversation normalizers, `ingestion` import parsers |
-| 8 UI | `app/ui` |
-| 9 Evaluation | `evaluation` |
+| 9b Experiments | `evaluation/baselines`, `evaluation/metrics`, `evaluation/experiments` |
 | 10 Reliability | failure tests and `scripts/rebuild_index.py` |
-| 11 Docker | `Dockerfile`, `docker-compose.yml`, `.env.example` |
+| 8 UI | `app/ui` |
+| 11 Docker | `Dockerfile`, `docker-compose.yml` |
 | 12 Docs | README completion and experiment report |
 
 ## Runtime vault

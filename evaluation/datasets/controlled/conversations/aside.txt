@@ -1,0 +1,4 @@
+User: Remind me later that we already decided SQLite exact search.
+Assistant: That decision belongs in structured memory, not in this chat.
+User: I named my cat Harbor. That is not a project fact.
+Assistant: I will not store the cat's name as Harbor project memory.
