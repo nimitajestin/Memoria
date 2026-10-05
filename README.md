@@ -24,7 +24,7 @@ Execution is accuracy-first. Architecture ADRs are unchanged.
 | 2 | 3 Ingestion | Implemented |
 | 3 | 4 Retrieval | Implemented |
 | 4 | 2 MCP | Implemented |
-| 5 | 5 Agent (A, then B, then C) | Not started |
+| 5 | 5 Agent (A, then B, then C) | Implemented |
 | 6 | 6 Remember | Not started |
 | 7 | 7 Import | Not started |
 | 8 | 9b Experiment runners | Not started |
