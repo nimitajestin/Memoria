@@ -23,7 +23,7 @@ Execution is accuracy-first. Architecture ADRs are unchanged.
 | 1 | 9a Harbor dataset | Implemented |
 | 2 | 3 Ingestion | Implemented |
 | 3 | 4 Retrieval | Implemented |
-| 4 | 2 MCP | Not started |
+| 4 | 2 MCP | Implemented |
 | 5 | 5 Agent (A, then B, then C) | Not started |
 | 6 | 6 Remember | Not started |
 | 7 | 7 Import | Not started |

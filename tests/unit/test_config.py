@@ -11,10 +11,14 @@ def test_settings_read_model_names_from_the_environment(monkeypatch) -> None:
 
 
 def test_storage_import_does_not_pull_in_mcp_or_streamlit() -> None:
+    import subprocess
     import sys
 
-    import core.storage
-
-    assert not any(name == "mcp" or name.startswith("mcp.") for name in sys.modules)
-    assert not any(name == "streamlit" or name.startswith("streamlit.") for name in sys.modules)
-    assert core.storage.MemoryRepository is not None
+    script = (
+        "import sys; import core.storage; "
+        "assert not any(n == 'mcp' or n.startswith('mcp.') for n in sys.modules); "
+        "assert not any(n == 'streamlit' or n.startswith('streamlit.') for n in sys.modules); "
+        "assert core.storage.MemoryRepository is not None"
+    )
+    result = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True)
+    assert result.returncode == 0, result.stderr or result.stdout
