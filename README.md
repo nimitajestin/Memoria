@@ -31,7 +31,7 @@ Execution is accuracy-first. Architecture ADRs are unchanged.
 | 9 | 10 Reliability | Implemented |
 | 10 | 8 UI | Implemented |
 | 11 | 11 Docker | Implemented |
-| 12 | 12 Finalization | Not started |
+| 12 | 12 Finalization | Implemented |
 
 ## Phase 1
 
@@ -43,6 +43,20 @@ python -m pytest
 ```
 
 Phase 4 retrieval is exact cosine over SQLite float32 vectors. Default tests use a hash embedder; Ollama is optional (`pytest -m ollama`).
+
+```powershell
+python -m pytest
+streamlit run app/ui/streamlit_app.py
+python -m mcp_server
+docker compose up --build
+```
+
+Offline A/B/C scoring (HeuristicChat, not the reported Ollama run):
+
+```powershell
+python -c "from pathlib import Path; from evaluation.experiments.compare import run_comparison, write_report; write_report(run_comparison(Path('storage')))"
+```
+
 
 
 
