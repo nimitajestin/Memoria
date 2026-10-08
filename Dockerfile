@@ -6,6 +6,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
 ENV DATA_ROOT=/app/storage
 ENV OLLAMA_BASE_URL=http://host.docker.internal:11434
 ENV MCP_URL=http://mcp:8765/mcp
