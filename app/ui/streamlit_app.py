@@ -19,10 +19,12 @@ def main() -> None:
     root = Path(settings.data_root).resolve()
     st.set_page_config(page_title="Memoria", layout="wide")
     st.title("Memoria")
-    page = st.sidebar.radio("Page", ["Chat", "Memory", "Documents", "Trace"])
     projects = list_projects(root)
     ids = [item["id"] for item in projects] or ["project_harbor"]
+    if "project_harbor" in ids:
+        ids = ["project_harbor", *[pid for pid in ids if pid != "project_harbor"]]
     project_id = st.sidebar.selectbox("Project", ids)
+    page = st.sidebar.radio("Page", ["Chat", "Memory", "Documents", "Trace"])
     if "history" not in st.session_state:
         st.session_state.history = []
         st.session_state.trace = []
