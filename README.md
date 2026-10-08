@@ -65,6 +65,16 @@ python scripts/rebuild_index.py
 
 `rebuild_index.py` embeds with Ollama (`nomic-embed-text`). Harbor is about 10 files; the first index is slow on CPU.
 
+### Give Memoria your files
+
+The container cannot see `C:\...` unless you mount it. Three ways to add files:
+
+**(a) Host inbox (optional).** Create `C:\MemoriaInbox`, uncomment the volume in `docker-compose.yml` (`C:/MemoriaInbox:/vault/inbox:ro` on the `app` service), then `docker compose up -d`. Drop files in that folder and click **Import from inbox** on the Documents page.
+
+**(b) Multi-upload.** On Documents, use **Add files**, then **Add files to vault**. You should see `N files added, index pending`. Click **Reindex project**. Per-file cap is 20 MB; extensions must match the parser allowlist (`.md`, `.txt`, `.pdf`, `.docx`, source files, …).
+
+**(c) Vault on disk.** Compose bind-mounts `./storage` to `/app/storage`. Indexed files live under `storage/documents/<project_id>/<doc_id>/original.*`. YAML memory is under `storage/memory/projects/<project_id>/`.
+
 6. Build images once:
 
 ```powershell
