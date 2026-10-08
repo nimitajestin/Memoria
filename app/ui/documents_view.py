@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.ui.ingest import ingest_bytes, reindex_project
+from app.ui.ingest import ingest_bytes, ingest_inbox, list_inbox, reindex_project
 from app.ui.services import list_documents
 from core.errors import StorageError
 
@@ -18,6 +18,18 @@ def render_documents(st, root: Path, project_id: str) -> None:
                 errors.append(f"{item.name}: {exc}")
         if added:
             st.success(f"{added} files added, index pending")
+        for message in errors:
+            st.error(message)
+    pending = list_inbox()
+    if pending and st.button(f"Import from inbox ({len(pending)} files)"):
+        added, errors = ingest_inbox(root, project_id)
+        if added:
+            st.success(f"{len(added)} files added, index pending")
+            report = reindex_project(root, project_id)
+            st.info(
+                f"reindexed={report.reindexed} unchanged={report.unchanged} "
+                f"failed={report.failed} unsupported={report.unsupported}"
+            )
         for message in errors:
             st.error(message)
     if st.button("Reindex project"):
