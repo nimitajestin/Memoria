@@ -1,0 +1,12 @@
+Memoria process model (from docs/architecture.md; not redrawn):
+
+Browser
+  → Streamlit (app process)
+      → LangGraph agent
+          → MCP client  ---- Streamable HTTP ----  MCP server (second process)
+                                                        → core.storage
+                                                        → storage/  (volume)
+      → Ollama on the host (chat and embeddings)
+
+Agent graph:
+START → understand → route → retrieve → answer → remember → END
