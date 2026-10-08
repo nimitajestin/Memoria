@@ -35,7 +35,9 @@ if ($missing.Count -gt 0) {
     exit 1
 }
 
-Write-Host "Starting Docker Compose (build if needed)..."
+if (-not $env:LLM_MODEL) { $env:LLM_MODEL = "phi3:mini" }
+if (-not $env:EMBEDDING_MODEL) { $env:EMBEDDING_MODEL = "nomic-embed-text" }
+Write-Host "Starting Docker Compose (build if needed). LLM_MODEL=$($env:LLM_MODEL) EMBEDDING_MODEL=$($env:EMBEDDING_MODEL)"
 & docker compose up --build -d
 if ($LASTEXITCODE -ne 0) {
     Write-Host "BLOCKED: docker compose up failed. Install Docker Desktop, start it, then retry from the repo root."

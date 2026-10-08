@@ -32,7 +32,9 @@ if [ "${#MISSING[@]}" -gt 0 ]; then
   exit 1
 fi
 
-echo "Starting Docker Compose (build if needed)..."
+export LLM_MODEL="${LLM_MODEL:-phi3:mini}"
+export EMBEDDING_MODEL="${EMBEDDING_MODEL:-nomic-embed-text}"
+echo "Starting Docker Compose (build if needed). LLM_MODEL=$LLM_MODEL EMBEDDING_MODEL=$EMBEDDING_MODEL"
 if ! docker compose up --build -d; then
   echo "BLOCKED: docker compose up failed. Install Docker, start it, then retry from the repo root."
   exit 1
