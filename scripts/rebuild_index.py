@@ -1,6 +1,9 @@
 """Rebuild Memoria's SQLite index from vault files."""
 
 from pathlib import Path
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from core.config import Settings
 from core.ollama import OllamaEmbedder
