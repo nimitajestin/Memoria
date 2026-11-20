@@ -16,6 +16,17 @@ PURPOSE_ROUTE = "route"
 PURPOSE_ANSWER = "answer"
 PURPOSE_REMEMBER = "remember"
 
+# num_ctx is the KV cache Ollama allocates. Changing it between nodes reloads
+# the model. One window for the whole turn, with a short cap so JSON stops early.
+_CHAT_NUM_CTX = 1024
+_CHAT_LIMITS: dict[str, int] = {
+    PURPOSE_UNDERSTAND: 80,
+    PURPOSE_ROUTE: 64,
+    PURPOSE_ANSWER: 80,
+    PURPOSE_REMEMBER: 96,
+}
+_CHAT_KEEP_ALIVE = "10m"
+
 _JSON_OBJECT = re.compile(r"\{.*\}", re.DOTALL)
 
 
@@ -47,7 +58,7 @@ class OllamaChat:
         self.timeout = timeout
 
     def complete(self, purpose: str, system: str, user: str) -> str:
-        del purpose
+        num_predict = _CHAT_LIMITS.get(purpose, 80)
         url = f"{self.base_url}/api/chat"
         payload = {
             "model": self.model,
@@ -56,10 +67,12 @@ class OllamaChat:
                 {"role": "user", "content": user},
             ],
             "stream": False,
+            "format": "json",
+            "keep_alive": _CHAT_KEEP_ALIVE,
             "options": {
                 "temperature": 0,
-                "num_ctx": 4096,
-                "num_predict": 512,
+                "num_ctx": _CHAT_NUM_CTX,
+                "num_predict": num_predict,
             },
         }
         try:
