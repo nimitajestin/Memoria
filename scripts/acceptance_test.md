@@ -17,7 +17,7 @@ Record each row in `report/acceptance_results.md` during T4. Do not skip a FAIL:
 | 9 | Documents works | Documents page lists Harbor files with statuses/chunk counts | | |
 | 10 | Trace works | After a Chat send, Trace page shows JSON node trace (not the empty-state caption only) | | |
 | 11 | Harbor docs index | At least one document status is `indexed` with `chunk_count` > 0 | | |
-| 12 | RAG question returns grounded answer | System **C**, **Use Ollama chat** on, project `project_harbor`. Ask: *How much RAM does the Harbor workstation have?* Answer includes **8 GB** and caption `grounding=` is document-side (`known_from_documents` or equivalent, not a crash) | | |
+| 12 | RAG question returns grounded answer | System **C**, **Use Ollama chat** on, project `project_harbor`. Ask: *How much RAM does the Harbor workstation have?* Answer includes **8 GB**. Record the caption. On the seeded vault the live route is `known_from_memory` because `fact_8ba000000001` is stored. That is not a crash. A document-route check is *What retrieval method does Harbor use for document vectors?* | | |
 | 13 | Trace shows MCP ops + evidence | Same turn: Trace includes retrieve/MCP-related entries; Chat/trace mentions evidence ids (chunk or memory ids) | | |
 | 14 | Memory write + restart + recall | Ask a rememberable fact, or rely on seeded decision. `docker compose down` then `docker compose up -d`. Memory page still lists YAML records. Follow-up: *What architecture did I decide for the retrieval system?* Answer includes **exact cosine** and **SQLite** | | |
 | 15 | No cloud APIs | Traffic is localhost/Ollama/Docker only (no OpenAI/Anthropic keys in `.env`; `OLLAMA_BASE_URL` is host Ollama) | | |

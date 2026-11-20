@@ -17,12 +17,15 @@ def retrieve_node(backend: KnowledgeBackend):
         project_id = state["project_id"]
         memories: list[dict[str, Any]] = []
         chunks: list[dict[str, Any]] = []
+        tools: list[str] = []
         tool_ok = list(state.get("tool_ok") or [])
         try:
             if route in {"memory", "both"}:
                 memories = _once(lambda: backend.search_memory(project_id, query), tool_ok)
+                tools.append("memory.search")
             if route in {"documents", "both"}:
                 chunks = _once(lambda: backend.search_documents(project_id, query), tool_ok)
+                tools.append("documents.search")
         except MCPUnavailable as exc:
             return {"error": f"MCP-unavailable: {exc}", "tool_ok": tool_ok}
         except StorageError as exc:
@@ -33,6 +36,7 @@ def retrieve_node(backend: KnowledgeBackend):
                 "node": "retrieve",
                 "memory_ids": [item.get("id") for item in memories],
                 "chunk_ids": [item.get("chunk_id") for item in chunks],
+                "tools": tools,
             }
         )
         calls = state.get("tool_calls") or 0

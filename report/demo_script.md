@@ -6,11 +6,11 @@ Match [scripts/demo_end_to_end.md](../scripts/demo_end_to_end.md). URL: **http:/
 
 **0:45 Documents.** Sidebar project `project_harbor` → **Documents**. Ten Harbor files, status `indexed`.
 
-**1:15 RAG + Trace.** **Chat**, System **C**, check **Use Ollama chat**. First CPU call can take two minutes — narrate that as the 8 GB constraint, do not mash Send.
+**1:15 Chat + Trace.** **Chat**, System **C**, check **Use Ollama chat**. Click **Send** once. A cold `phi3:mini` load on this CPU was about 3 minutes; a turn with the model already resident was about 2 minutes. Narrate that as the 8 GB constraint. Do not send again while the spinner is up.
 
 Ask: **How much RAM does the Harbor workstation have?**
 
-Expected: **8 GB**. Then **Trace**: retrieve / MCP and evidence ids.
+Expected answer: **8 GB**. Live caption on the seeded vault: `known_from_memory` / `memory`, because that fact is stored. **Trace** shows `memory.search` and the fact id. The document-route example is *What retrieval method does Harbor use for document vectors?* — observed `documents.search`, chunk ids, exact cosine in SQLite.
 
 **3:00 Memory.** **Memory** page: seeded `decision_a11ce0000001` (exact cosine in SQLite), `fact_8ba000000001` (8 GB RAM).
 

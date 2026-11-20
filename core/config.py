@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://127.0.0.1:11434"
     llm_model: str = "qwen2.5:3b"
     embedding_model: str = "nomic-embed-text"
+    ollama_load_timeout: float = 180
+    ollama_inference_timeout: float = 90
     mcp_url: str = "http://127.0.0.1:8765/mcp"
     mcp_host: str = "127.0.0.1"
     mcp_port: int = 8765

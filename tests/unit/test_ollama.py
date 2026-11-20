@@ -30,17 +30,26 @@ def test_ollama_embedder_sends_keep_alive_zero(monkeypatch) -> None:
 def test_ollama_chat_caps_context_and_keeps_model_loaded(monkeypatch) -> None:
     captured: dict = {}
 
+    def fake_get(url, timeout):
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = {"models": [{"name": "phi3:mini"}]}
+        return response
+
     def fake_post(url, json, timeout):
         captured["url"] = url
         captured["json"] = json
+        captured["timeout"] = timeout
         response = Mock()
         response.status_code = 200
         response.json.return_value = {"message": {"content": "{\"route\":\"memory\"}"}}
         return response
 
+    monkeypatch.setattr("agent.llm.httpx.get", fake_get)
     monkeypatch.setattr("agent.llm.httpx.post", fake_post)
-    chat = OllamaChat(base_url="http://127.0.0.1:11434", model="phi3:mini")
+    chat = OllamaChat(base_url="http://127.0.0.1:11434", model="phi3:mini", timeout=90, load_timeout=180)
     assert chat.complete(PURPOSE_ROUTE, "route", "RAM?") == "{\"route\":\"memory\"}"
+    assert captured["timeout"] == 90
     options = captured["json"]["options"]
     assert options["num_ctx"] == 1024
     assert options["num_predict"] == 64
@@ -51,6 +60,31 @@ def test_ollama_chat_caps_context_and_keeps_model_loaded(monkeypatch) -> None:
     answer_options = captured["json"]["options"]
     assert answer_options["num_ctx"] == 1024
     assert answer_options["num_predict"] == 80
+
+
+def test_ollama_chat_loads_a_cold_model_before_inference(monkeypatch) -> None:
+    posts: list[dict] = []
+
+    def fake_get(url, timeout):
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = {"models": []}
+        return response
+
+    def fake_post(url, json, timeout):
+        posts.append({"timeout": timeout, "predict": json["options"]["num_predict"]})
+        response = Mock()
+        response.status_code = 200
+        response.json.return_value = {"message": {"content": "{\"route\":\"memory\"}"}}
+        return response
+
+    monkeypatch.setattr("agent.llm.httpx.get", fake_get)
+    monkeypatch.setattr("agent.llm.httpx.post", fake_post)
+    chat = OllamaChat(base_url="http://127.0.0.1:11434", model="phi3:mini", timeout=90, load_timeout=180)
+    assert chat.complete(PURPOSE_ROUTE, "route", "RAM?") == "{\"route\":\"memory\"}"
+    assert posts[0] == {"timeout": 180, "predict": 1}
+    assert posts[1]["timeout"] == 90
+    assert posts[1]["predict"] == 64
 
 
 def test_ollama_embedder_maps_connection_failure(monkeypatch) -> None:

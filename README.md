@@ -130,9 +130,9 @@ Phase 4 retrieval is exact cosine over SQLite float32 vectors.
 | `:8501` never opens | Wait for the first image build; `docker compose logs app`. |
 | `:8765` never opens | `docker compose logs mcp`. MCP is Streamable HTTP at `http://127.0.0.1:8765/mcp`. |
 | Empty Documents/Memory | Seed Harbor and rebuild the index (First-time setup step 5). |
-| Chat is slow or Ollama 500 | Only one model should be hot; embeddings use `keep_alive: 0`. First query after a model swap can take minutes on CPU. |
+| Chat is slow or shows a red error | Only one chat model should be hot; embeddings use `keep_alive: 0`. The page loads a missing model (`OLLAMA_LOAD_TIMEOUT`, default 180s) and then runs each generation (`OLLAMA_INFERENCE_TIMEOUT`, default 90s). On this CPU a cold `phi3:mini` browser turn was about 3 minutes and a later turn with the model already resident was about 2 minutes. Click **Send** once. A red error means that turn was not saved. |
 | Wrong chat model | UI uses `LLM_MODEL` / Settings (`qwen2.5:3b` default). For honors demo set `LLM_MODEL=phi3:mini` in `.env` or the Compose environment. |
-| Tests | Golden local suite: `python -m pytest` → 77 passed, 1 skipped, 1 deselected. |
+| Tests | Golden local suite: `python -m pytest` → 89 passed, 2 skipped, 1 deselected. |
 
 Local processes without Docker:
 

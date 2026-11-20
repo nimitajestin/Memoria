@@ -50,15 +50,69 @@ class OllamaChat:
         self,
         base_url: str | None = None,
         model: str | None = None,
-        timeout: float = 120.0,
+        timeout: float | None = None,
+        load_timeout: float | None = None,
     ) -> None:
         settings = Settings(_env_file=None)
         self.base_url = (base_url or str(settings.ollama_base_url)).rstrip("/")
         self.model = model or settings.llm_model
-        self.timeout = timeout
+        self.inference_timeout = settings.ollama_inference_timeout if timeout is None else timeout
+        self.load_timeout = settings.ollama_load_timeout if load_timeout is None else load_timeout
+
+    def ensure_resident(self) -> str:
+        """Return 'resident' or 'loaded'. Loading uses the load timeout, not the inference timeout."""
+
+        if self._is_resident():
+            return "resident"
+        self._warmup()
+        return "loaded"
 
     def complete(self, purpose: str, system: str, user: str) -> str:
+        self.ensure_resident()
         num_predict = _CHAT_LIMITS.get(purpose, 80)
+        response = self._post_chat(system, user, num_predict, self.inference_timeout, loading=False)
+        body = response.json()
+        message = body.get("message") or {}
+        content = message.get("content")
+        if not isinstance(content, str) or not content.strip():
+            raise StorageError("FAILED_DEPENDENCY", "Chat model returned an empty reply.")
+        return content
+
+    def _is_resident(self) -> bool:
+        url = f"{self.base_url}/api/ps"
+        try:
+            response = httpx.get(url, timeout=5)
+        except httpx.ConnectError as exc:
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                f"Ollama is not reachable at {self.base_url}. Start the Ollama app, then send again.",
+            ) from exc
+        except httpx.TimeoutException as exc:
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                "Ollama did not answer a model-status check within 5 seconds. Start the Ollama app, then send again.",
+            ) from exc
+        except httpx.HTTPError as exc:
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                f"Ollama is not reachable at {self.base_url}. Start the Ollama app, then send again.",
+            ) from exc
+        if response.status_code >= 400:
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                f"Ollama rejected a model-status check ({response.status_code}). Start the Ollama app, then send again.",
+            )
+        names: list[str] = []
+        for row in response.json().get("models") or []:
+            if isinstance(row, dict):
+                names.append(str(row.get("name") or ""))
+                names.append(str(row.get("model") or ""))
+        return any(name == self.model or name.startswith(f"{self.model}:") or self.model in name for name in names if name)
+
+    def _warmup(self) -> None:
+        self._post_chat("Reply with JSON.", "ping", 1, self.load_timeout, loading=True)
+
+    def _post_chat(self, system: str, user: str, num_predict: int, timeout: float, *, loading: bool) -> httpx.Response:
         url = f"{self.base_url}/api/chat"
         payload = {
             "model": self.model,
@@ -76,17 +130,34 @@ class OllamaChat:
             },
         }
         try:
-            response = httpx.post(url, json=payload, timeout=self.timeout)
+            response = httpx.post(url, json=payload, timeout=timeout)
+        except httpx.ConnectError as exc:
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                f"Ollama is not reachable at {self.base_url}. Start the Ollama app, then send again.",
+            ) from exc
+        except httpx.TimeoutException as exc:
+            if loading:
+                detail = (
+                    f"Loading {self.model} exceeded {timeout:.0f}s. Leave Ollama running and send the same question once."
+                )
+            else:
+                detail = (
+                    f"{self.model} is loaded, but this reply exceeded the {timeout:.0f}s inference limit. "
+                    "Wait until this request finishes before sending again."
+                )
+            raise StorageError("FAILED_DEPENDENCY", detail) from exc
         except httpx.HTTPError as exc:
-            raise StorageError("FAILED_DEPENDENCY", "Chat model is unavailable.") from exc
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                f"Ollama is not reachable at {self.base_url}. Start the Ollama app, then send again.",
+            ) from exc
         if response.status_code >= 400:
-            raise StorageError("FAILED_DEPENDENCY", "Chat model is unavailable.")
-        body = response.json()
-        message = body.get("message") or {}
-        content = message.get("content")
-        if not isinstance(content, str) or not content.strip():
-            raise StorageError("FAILED_DEPENDENCY", "Chat model returned an empty reply.")
-        return content
+            raise StorageError(
+                "FAILED_DEPENDENCY",
+                f"Ollama rejected {self.model} ({response.status_code}). Run `ollama pull {self.model}`, then send again.",
+            )
+        return response
 
 
 class HeuristicChat:
