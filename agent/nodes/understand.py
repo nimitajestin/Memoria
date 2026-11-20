@@ -12,9 +12,14 @@ def understand_node(llm: ChatModel):
     system = load_prompt("understand.md")
 
     def understand(state: AgentState) -> dict[str, Any]:
+        message = state["user_message"].strip()
+        if len(message) <= 200 and message.endswith("?") and not (state.get("prior_turns") or []):
+            trace = list(state.get("trace") or [])
+            trace.append({"node": "understand", "task": message, "query": message})
+            return {"task": message, "query": message, "trace": trace, "error": None}
         prior = state.get("prior_turns") or []
         lines = [f"{item.get('role')}: {item.get('content')}" for item in prior]
-        user = "Prior:\n" + "\n".join(lines) + "\n\nMessage:\n" + state["user_message"]
+        user = "Prior:\n" + "\n".join(lines) + "\n\nMessage:\n" + message
         try:
             raw = llm.complete(PURPOSE_UNDERSTAND, system, user)
             payload = parse_json_object(raw)

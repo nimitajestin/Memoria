@@ -16,14 +16,20 @@ def remember_node(llm: ChatModel, backend: KnowledgeBackend):
     system = load_prompt("candidates.md")
 
     def remember(state: AgentState) -> dict[str, Any]:
-        user = f"Message: {state['user_message']}\nAnswer: {state.get('answer') or ''}"
+        message = state["user_message"].strip()
+        user = f"Message: {message}\nAnswer: {state.get('answer') or ''}"
         outcomes: list[dict[str, Any]] = []
         wrote = False
-        try:
-            raw = llm.complete(PURPOSE_REMEMBER, system, user)
-            payload = parse_json_object(raw)
-        except Exception:
+        # A question does not propose a durable memory. Skipping the model here
+        # keeps a recall turn to the calls that choose and word the answer.
+        if message.endswith("?") and "remember" not in message.casefold():
             payload = {"candidates": []}
+        else:
+            try:
+                raw = llm.complete(PURPOSE_REMEMBER, system, user)
+                payload = parse_json_object(raw)
+            except Exception:
+                payload = {"candidates": []}
         candidates = list(payload.get("candidates") or [])[:2]
         existing = []
         try:
