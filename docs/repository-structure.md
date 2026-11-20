@@ -1,6 +1,6 @@
 # Repository structure
 
-Phase 0 layout. Directories below are the target tree. Phase 0 creates this document only. Later phases add the packages as they are implemented.
+This is the layout of the implemented repository. Read it for where a component lives. The phase numbers further down are the order the packages were committed, not a separate plan.
 
 `storage/` is runtime data and is gitignored except for a kept placeholder. The evaluation corpus lives under `evaluation/datasets/` so it is versioned.
 
@@ -32,13 +32,9 @@ Memoria/
 │   └── mcp_client.py                  # System C only
 ├── mcp_server/
 │   ├── __main__.py                    # Streamable HTTP entry
-│   ├── server.py                      # MCPServer registration
-│   ├── tools/
-│   │   ├── memory.py
-│   │   ├── documents.py
-│   │   └── project.py
-│   └── resources/
-│       └── knowledge.py
+│   ├── server.py                      # tool and resource registration
+│   ├── envelope.py
+│   └── context.py
 ├── core/
 │   ├── config.py
 │   ├── logging.py
@@ -110,9 +106,9 @@ The brief’s tree is preserved: UI, agent, MCP server, ingestion, storage data,
 
 Without it, System B and the Memory view would import the MCP server package or duplicate the write rules. The agent package for System C is still forbidden from importing `core.storage` writers. A unit test in `tests/unit/` imports `agent` and fails if those writer modules are in its import closure. System B is allowed to import them because that is the non-MCP condition.
 
-## Package roles by phase
+## Where each part was committed
 
-Phase numbers are capability labels from the original brief. **Execution order** is accuracy-first (architecture ADRs unchanged):
+Phase numbers are the commit groups from the original brief. The directories are what a reader should follow. Build order was:
 
 9a Harbor dataset → 3 Ingestion → 4 Retrieval → 2 MCP → 5 Agent (A, then B, then C) → 6 Remember → 7 Import → 9b Experiment runners → 10 Reliability → 8 UI → 11 Docker → 12 Docs
 
@@ -189,5 +185,3 @@ Tests that need a live Ollama use `@pytest.mark.ollama` and are skipped by defau
 ## Config files introduced with implementation
 
 `.env.example` lists every variable in the architecture configuration table. `.gitignore` ignores `.env`, `storage/**` contents, `__pycache__`, and virtualenvs, and keeps `storage/.gitkeep`.
-
-Phase 0 does not add those files. Phase 1 adds `.gitignore`, `pyproject.toml`, and the storage package together so the ignore rules land with the first writable vault.

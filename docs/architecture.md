@@ -1,6 +1,8 @@
-# Memoria architecture specification
+# Memoria architecture
 
-Phase 0 freeze. Inspected 5 October 2026. The repository contained only `README.md`. This document is the architecture contract for later phases. It does not implement storage, the MCP server, or the agent.
+This document is the architecture of the system in this repository. It was written before the packages existed and it is still the contract: who owns which component, how one turn moves, and the decisions in the ADR table. The git history is the build order. It is not a second design.
+
+One measurement on this machine changed the chat generation budget. A 4096-token context that changed between nodes reloaded the model on every step. The bounds table records the replacement. The component boundaries did not change.
 
 ## Research question
 
@@ -116,7 +118,7 @@ START
   → END
 ```
 
-`understand` rewrites the user text into a short task string and a project-scoped search query. It does not call MCP.
+`understand` rewrites the user text into a short task string and a project-scoped search query. It does not call MCP. A question of at most 200 characters with no prior turns is already that query, so the node does not call the model.
 
 `route` emits exactly one label: `none`, `memory`, `documents`, or `both`, plus an operational reason of at most 200 characters. The reason is shown in the trace. Hidden chain-of-thought is not requested, stored, or displayed.
 
@@ -124,7 +126,7 @@ START
 
 `answer` sees only the bounded state: task, selected memories, selected chunks, and the latest user message. It must attach grounding and evidence ids drawn from that state.
 
-`remember` asks for at most two memory candidates, then runs the deterministic policy. A create or update is one MCP call. A reject writes nothing.
+`remember` asks for at most two memory candidates, then runs the deterministic policy. A create or update is one MCP call. A reject writes nothing. A message that is only a question does not propose a memory, so the node does not call the model.
 
 Failure at any node goes to `fail`, which sets a user-visible error and ends the turn. One tool retry is allowed and counts toward the tool cap.
 
@@ -136,8 +138,9 @@ Failure at any node goes to `fail`, which sets a user-visible error and ends the
 | Memories returned | 5 |
 | Chunks returned | 5 |
 | Evidence characters placed in the answer prompt | 6000 |
-| Chat `num_ctx` | 4096 |
-| Chat `num_predict` | 512 |
+| Chat `num_ctx` | 1024 for every node, so the model stays loaded |
+| Chat `num_predict` | 80 understand, 64 route, 80 answer, 96 remember |
+| Chat `keep_alive` | 10 minutes |
 | Embedding batch | 8 chunks |
 | Chunk target / max / overlap | 800 / 1200 / 100 characters |
 | Chunks stored per document | 500, then status `truncated` |

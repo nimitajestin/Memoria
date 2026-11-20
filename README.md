@@ -155,32 +155,21 @@ docker compose up --build
 - [MCP interface](docs/mcp-interface.md)
 - [Evaluation design](docs/evaluation-design.md)
 
-## Status
+## Architecture
 
-Execution is accuracy-first. Architecture ADRs are unchanged.
+One turn is a bounded walk: understand, route, retrieve, answer, remember. There is no loop back into routing. The model may propose a memory. A deterministic policy decides whether to reject, update, or create it.
 
-| Order | Phase | State |
-| --- | --- | --- |
-| — | 0 Architecture | Frozen in `docs/` |
-| — | 1 Storage | Implemented in `core/` |
-| 1 | 9a Harbor dataset | Implemented |
-| 2 | 3 Ingestion | Implemented |
-| 3 | 4 Retrieval | Implemented |
-| 4 | 2 MCP | Implemented |
-| 5 | 5 Agent (A, then B, then C) | Implemented |
-| 6 | 6 Remember | Implemented |
-| 7 | 7 Import | Implemented |
-| 8 | 9b Experiment runners | Implemented |
-| 9 | 10 Reliability | Implemented |
-| 10 | 8 UI | Implemented |
-| 11 | 11 Docker | Implemented |
-| 12 | 12 Finalization | Implemented |
+| Part | Responsibility |
+| --- | --- |
+| `app/ui` | Chat, Memory, Documents, Trace |
+| `agent` | The bounded graph and the MCP client |
+| `mcp_server` | Memory and document tools. It does not call the chat model |
+| `core` | Schemas, the YAML vault, SQLite, retrieval, memory policy |
+| `ingestion` | Parse, chunk, embed, index |
+| `evaluation` | Harbor corpus, systems A and B, the A/B/C comparison |
 
-## Phase 1
+System A is stateless RAG. System B reads memory directly. System C is the same agent talking only to the MCP server. Those three share the index, the embedder, and the answer instructions.
 
-The vault stores project memory as YAML. `status.md` and `decisions.md` are generated views. SQLite at `storage/index/memoria.sqlite` indexes those records and holds document metadata, chunk text, and embedding blobs. Writes are atomic, revision-checked, and refused when a path leaves the data root.
+The vault stores project memory as YAML. SQLite at `storage/index/memoria.sqlite` indexes those records and holds chunk text and embedding blobs. Writes are atomic and refused when a path leaves the data root.
 
-```powershell
-python -m pip install -r requirements.txt
-python -m pytest
-```
+The design contract is [docs/architecture.md](docs/architecture.md). The directory map is [docs/repository-structure.md](docs/repository-structure.md). Phase numbers in the git history are the order the packages were built.
